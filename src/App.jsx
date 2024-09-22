@@ -29,7 +29,7 @@ function App() {
       setHasStart(true);
       id = setInterval(() => {
         setTimeSession((time) => time - 1);
-      }, 10);
+      }, 1000);
     } else {
       setHasStart(false);
       clearInterval(id);
