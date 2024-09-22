@@ -8,26 +8,58 @@ const formatTwoDigit = (time) => {
 };
 
 const formatRuntime = (timeSecond) => {
+  const minute = Math.floor(timeSecond / 60);
   const second = timeSecond % 60;
-  const minute = (timeSecond - second) / 60;
   return formatTwoDigit(minute) + ":" + formatTwoDigit(second);
 };
+
+let id;
 
 function App() {
   const [initialTimeSession, setInitialTimeSession] =
     useState(timeSessionStart);
   const [initialTimeBreak, setInitialTimeBreak] = useState(timeBreakStart);
 
-  const [sessionTime, setSessionTime] = useState(initialTimeSession);
-  const [breakTime, setBreakTime] = useState(initialTimeBreak);
+  const [timeSession, setTimeSession] = useState(initialTimeSession * 60);
+  const [timeBreak, setTimeBreak] = useState(initialTimeBreak * 60);
+  const [hasStart, setHasStart] = useState(false);
+
+  const onClickStart = () => {
+    if (!hasStart) {
+      setHasStart(true);
+      id = setInterval(() => {
+        setTimeSession((time) => time - 1);
+      }, 1000);
+    } else {
+      setHasStart(false);
+      clearInterval(id);
+    }
+    return () => {
+      clearInterval(id);
+    };
+  };
+
+  const onClickReset = () => {
+    setHasStart(false);
+    clearInterval(id);
+    setTimeSession(initialTimeSession * 60);
+  };
 
   useEffect(() => {
-    setSessionTime(initialTimeSession * 60);
+    setTimeSession(initialTimeSession * 60);
   }, [initialTimeSession]);
 
   useEffect(() => {
-    setBreakTime(initialTimeBreak * 60);
+    setTimeBreak(initialTimeBreak * 60);
   }, [initialTimeBreak]);
+
+  useEffect(() => {
+    if (timeSession === 0) {
+      setTimeSession(initialTimeBreak * 60);
+      setHasStart(false);
+      clearInterval(id);
+    }
+  }, [timeSession]);
 
   return (
     <>
@@ -35,10 +67,14 @@ function App() {
       <div className="bg-redwood flex flex-col items-center px-[40px]">
         <div className="setting-box">
           <h2>Session</h2>
-          <h3>{formatRuntime(sessionTime)}</h3>
+          <h3>{formatRuntime(timeSession)}</h3>
           <div className="flex justify-between w-full">
-            <button className="btn">Start</button>
-            <button className="btn">Reset</button>
+            <button className="btn" onClick={onClickStart}>
+              {hasStart ? "Pause" : "Start"}
+            </button>
+            <button className="btn" onClick={onClickReset}>
+              Reset
+            </button>
           </div>
         </div>
         <div className="flex justify-between w-full">
@@ -51,7 +87,7 @@ function App() {
                 onClick={() => {
                   setInitialTimeSession((time) => time - 1);
                 }}
-                disabled={initialTimeSession === 0}
+                disabled={initialTimeSession === 0 || hasStart}
               >
                 -
               </button>
@@ -60,6 +96,7 @@ function App() {
                 onClick={() => {
                   setInitialTimeSession((time) => time + 1);
                 }}
+                disabled={hasStart}
               >
                 +
               </button>
@@ -74,7 +111,7 @@ function App() {
                 onClick={() => {
                   setInitialTimeBreak((time) => time - 1);
                 }}
-                disabled={initialTimeBreak === 0}
+                disabled={initialTimeBreak === 0 || hasStart}
               >
                 -
               </button>
@@ -83,6 +120,7 @@ function App() {
                 onClick={() => {
                   setInitialTimeBreak((time) => time + 1);
                 }}
+                disabled={hasStart}
               >
                 +
               </button>
