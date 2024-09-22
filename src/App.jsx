@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-const timeSessionStart = 25; // minute;
-const timeBreakStart = 5; // minute
+const timeSessionStart = 1; // minute;
+const timeBreakStart = 0; // minute
 
 const formatTwoDigit = (time) => {
   return time < 10 ? "0" + time : time;
@@ -29,7 +29,7 @@ function App() {
       setHasStart(true);
       id = setInterval(() => {
         setTimeSession((time) => time - 1);
-      }, 1000);
+      }, 50);
     } else {
       setHasStart(false);
       clearInterval(id);
@@ -41,6 +41,7 @@ function App() {
 
   const onClickReset = () => {
     setHasStart(false);
+    setHasBreak(false);
     clearInterval(id);
     setTimeSession(initialTimeSession * 60);
   };
@@ -58,6 +59,8 @@ function App() {
         setTimeSession(initialTimeBreak * 60);
         setHasBreak(true);
       }
+    } else if (timeSession < 0) {
+      setTimeSession(0);
     }
   }, [timeSession]);
 
@@ -87,7 +90,7 @@ function App() {
                 onClick={() => {
                   setInitialTimeSession((time) => time - 1);
                 }}
-                disabled={initialTimeSession === 0 || hasStart}
+                disabled={initialTimeSession === 1 || hasStart}
               >
                 -
               </button>
