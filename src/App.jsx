@@ -21,10 +21,10 @@ function App() {
   const [initialTimeBreak, setInitialTimeBreak] = useState(timeBreakStart);
 
   const [timeSession, setTimeSession] = useState(initialTimeSession * 60);
-  const [timeBreak, setTimeBreak] = useState(initialTimeBreak * 60);
+  const [hasBreak, setHasBreak] = useState(false);
   const [hasStart, setHasStart] = useState(false);
 
-  const onClickStart = () => {
+  const onClickStartPause = () => {
     if (!hasStart) {
       setHasStart(true);
       id = setInterval(() => {
@@ -50,14 +50,14 @@ function App() {
   }, [initialTimeSession]);
 
   useEffect(() => {
-    setTimeBreak(initialTimeBreak * 60);
-  }, [initialTimeBreak]);
-
-  useEffect(() => {
     if (timeSession === 0) {
-      setTimeSession(initialTimeBreak * 60);
-      setHasStart(false);
-      clearInterval(id);
+      if (hasBreak) {
+        setTimeSession(initialTimeSession * 60);
+        setHasBreak(false);
+      } else {
+        setTimeSession(initialTimeBreak * 60);
+        setHasBreak(true);
+      }
     }
   }, [timeSession]);
 
@@ -66,10 +66,10 @@ function App() {
       <h1 className="text-smoke text-center">Pomodoro Timer</h1>
       <div className="bg-redwood flex flex-col items-center px-[40px]">
         <div className="setting-box">
-          <h2>Session</h2>
+          <h2>{hasStart ? (hasBreak ? "Break" : "Start") : "Session"}</h2>
           <h3>{formatRuntime(timeSession)}</h3>
           <div className="flex justify-between w-full">
-            <button className="btn" onClick={onClickStart}>
+            <button className="btn" onClick={onClickStartPause}>
               {hasStart ? "Pause" : "Start"}
             </button>
             <button className="btn" onClick={onClickReset}>
