@@ -29,7 +29,7 @@ function App() {
       setHasStart(true);
       id = setInterval(() => {
         setTimeSession((time) => time - 1);
-      }, 1000);
+      }, 10);
     } else {
       setHasStart(false);
       clearInterval(id);
@@ -48,19 +48,21 @@ function App() {
 
   useEffect(() => {
     setTimeSession(initialTimeSession * 60);
-  }, [initialTimeSession]);
+  }, [initialTimeSession, initialTimeBreak]);
 
   useEffect(() => {
     if (timeSession === 0) {
-      if (hasBreak) {
-        setTimeSession(initialTimeSession * 60);
-        setHasBreak(false);
-      } else {
-        setTimeSession(initialTimeBreak * 60);
-        setHasBreak(true);
+      if (hasStart) {
+        if (hasBreak) {
+          setTimeSession(initialTimeSession * 60);
+          setHasBreak(false);
+        } else {
+          setTimeSession(initialTimeBreak * 60);
+          setHasBreak(true);
+        }
       }
     }
-  }, [timeSession, hasBreak]);
+  }, [timeSession, hasBreak, hasStart]);
 
   return (
     <>
@@ -88,7 +90,7 @@ function App() {
                 onClick={() => {
                   setInitialTimeSession((time) => time - 1);
                 }}
-                disabled={initialTimeSession === 1 || hasStart}
+                disabled={initialTimeSession === 0 || hasStart}
               >
                 -
               </button>
